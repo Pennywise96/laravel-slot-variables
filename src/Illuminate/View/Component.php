@@ -20,6 +20,13 @@ abstract class Component
     protected $except = [];
 
     /**
+     * The properties / methods that should be exposed to the component slot.
+     *
+     * @var array
+     */
+    protected $slotVariables = [];
+
+    /**
      * The component alias name.
      *
      * @var string
@@ -222,6 +229,31 @@ abstract class Component
         $this->attributes = $this->attributes ?: $this->newAttributeBag();
 
         return array_merge($this->extractPublicProperties(), $this->extractPublicMethods());
+    }
+
+    /**
+     * Get the data that should be supplied to the slot.
+     *
+     * @return array
+     */
+    public function slotData()
+    {
+       $filteredData = [];
+
+       $publicProperties = $this->extractPublicProperties();
+       $publicMethods = $this->extractPublicMethods();
+
+       foreach ($this->slotVariables as $variable) {
+           if (array_key_exists($variable, $publicProperties)) {
+               $filteredData[$variable] = $publicProperties[$variable];
+           }
+
+           if (array_key_exists($variable, $publicMethods)) {
+               $filteredData[$variable] = $publicMethods[$variable];
+           }
+       }
+
+       return $filteredData;
     }
 
     /**
